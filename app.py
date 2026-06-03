@@ -58,6 +58,11 @@ def create_app():
                 from seed import seed_demo_data
                 seed_demo_data(db, User, Property, Unit, Tenant, Lease, Payment)
 
+    # Health check for Dokploy
+    @app.route('/health')
+    def health():
+        return 'OK', 200
+
     # Root redirect
     @app.route('/')
     def index():
