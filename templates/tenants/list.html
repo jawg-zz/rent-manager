@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Tenants{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Tenants</h4>
+    <a href="{{ url_for('tenants.add') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Tenant</a>
+</div>
+
+{% if tenants %}
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>ID</th>
+                    <th>Employer</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tenants %}
+                <tr>
+                    <td class="fw-bold">{{ t.full_name }}</td>
+                    <td><i class="bi bi-phone text-muted"></i> {{ t.phone }}</td>
+                    <td>{{ t.email or '—' }}</td>
+                    <td><small>{{ t.id_type|replace('_', ' ')|title }}: {{ t.id_number or '—' }}</small></td>
+                    <td>{{ t.employer or '—' }}</td>
+                    <td>
+                        {% if t.active_lease %}
+                            <span class="badge bg-success">Active Lease</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No Lease</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('tenants.edit', id=t.id) }}"><i class="bi bi-pencil"></i> Edit</a></li>
+                                <li>
+                                    <form method="POST" action="{{ url_for('tenants.delete', id=t.id) }}" onsubmit="return confirm('Delete {{ t.full_name }}?')">
+                                        <button class="dropdown-item text-danger"><i class="bi bi-trash"></i> Delete</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-people fs-1 text-muted"></i>
+    <h5 class="mt-3">No tenants yet</h5>
+    <a href="{{ url_for('tenants.add') }}" class="btn btn-primary">Add Tenant</a>
+</div>
+{% endif %}
+{% endblock %}

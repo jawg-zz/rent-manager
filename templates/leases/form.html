@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if lease else "New" }} Lease{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('leases.list_leases') }}">Leases</a></li>
+        <li class="breadcrumb-item active">{{ "Edit" if lease else "New" }} Lease</li>
+    </ol>
+</nav>
+
+<div class="card border-0 shadow-sm" style="max-width: 650px">
+    <div class="card-body">
+        <h5 class="mb-4">{{ "Edit" if lease else "New" }} Lease</h5>
+        <form method="POST">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Tenant *</label>
+                    <select name="tenant_id" class="form-select" required>
+                        <option value="">Select tenant...</option>
+                        {% for t in tenants %}
+                        <option value="{{ t.id }}" {{ 'selected' if lease and lease.tenant_id == t.id }}>{{ t.full_name }} — {{ t.phone }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href="{{ url_for('tenants.add') }}" class="small">+ Add new tenant</a>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Unit *</label>
+                    <select name="unit_id" class="form-select" required>
+                        <option value="">Select unit...</option>
+                        {% for u in units %}
+                        <option value="{{ u.id }}" {{ 'selected' if lease and lease.unit_id == u.id }}>
+                            {{ u.property.name }} — {{ u.unit_number }} (KES {{ "{:,.0f}".format(u.monthly_rent) }})
+                            {{ ' [OCCUPIED]' if u.status == 'occupied' else '' }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Start Date *</label>
+                    <input type="date" name="start_date" class="form-control" value="{{ lease.start_date.strftime('%Y-%m-%d') if lease else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">End Date *</label>
+                    <input type="date" name="end_date" class="form-control" value="{{ lease.end_date.strftime('%Y-%m-%d') if lease else '' }}" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Monthly Rent (KES) *</label>
+                    <input type="number" name="monthly_rent" class="form-control" value="{{ lease.monthly_rent if lease else '' }}" required step="100">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Deposit (KES)</label>
+                    <input type="number" name="deposit_amount" class="form-control" value="{{ lease.deposit_amount if lease else 0 }}" step="100">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Payment Day</label>
+                    <input type="number" name="payment_day" class="form-control" value="{{ lease.payment_day if lease else 1 }}" min="1" max="28">
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="deposit_paid" class="form-check-input" {{ 'checked' if lease and lease.deposit_paid else '' }}>
+                    <label class="form-check-label">Deposit Paid</label>
+                </div>
+            </div>
+            {% if lease %}
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="active" {{ 'selected' if lease.status == 'active' }}>Active</option>
+                    <option value="expired" {{ 'selected' if lease.status == 'expired' }}>Expired</option>
+                    <option value="terminated" {{ 'selected' if lease.status == 'terminated' }}>Terminated</option>
+                </select>
+            </div>
+            {% endif %}
+            <div class="mb-3">
+                <label class="form-label">Notes</label>
+                <textarea name="notes" class="form-control" rows="2">{{ lease.notes if lease else '' }}</textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">{{ "Save Changes" if lease else "Create Lease" }}</button>
+                <a href="{{ url_for('leases.list_leases') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

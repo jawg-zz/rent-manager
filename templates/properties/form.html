@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if property else "Add" }} Property{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('properties.list_properties') }}">Properties</a></li>
+        <li class="breadcrumb-item active">{{ "Edit" if property else "Add" }} Property</li>
+    </ol>
+</nav>
+
+<div class="card border-0 shadow-sm" style="max-width: 600px">
+    <div class="card-body">
+        <h5 class="mb-4">{{ "Edit" if property else "New" }} Property</h5>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Property Name *</label>
+                <input type="text" name="name" class="form-control" value="{{ property.name if property else '' }}" required placeholder="e.g. Sunrise Apartments">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Address *</label>
+                <input type="text" name="address" class="form-control" value="{{ property.address if property else '' }}" required placeholder="Street address">
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">City</label>
+                    <input type="text" name="city" class="form-control" value="{{ property.city if property else 'Nairobi' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Type</label>
+                    <select name="property_type" class="form-select">
+                        <option value="apartment" {{ 'selected' if property and property.property_type == 'apartment' }}>Apartment</option>
+                        <option value="house" {{ 'selected' if property and property.property_type == 'house' }}>House</option>
+                        <option value="office" {{ 'selected' if property and property.property_type == 'office' }}>Office</option>
+                        <option value="commercial" {{ 'selected' if property and property.property_type == 'commercial' }}>Commercial</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="2">{{ property.description if property else '' }}</textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">{{ "Save Changes" if property else "Add Property" }}</button>
+                <a href="{{ url_for('properties.list_properties') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

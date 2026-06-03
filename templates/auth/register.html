@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block auth_content %}
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <div class="text-center mb-4">
+            <h4 class="fw-bold"><i class="bi bi-building text-primary"></i> Rent<strong>Manager</strong></h4>
+            <p class="text-muted small">Create your landlord account</p>
+        </div>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="full_name" class="form-control" required placeholder="James Mwangi">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required placeholder="you@example.com">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <input type="tel" name="phone" class="form-control" placeholder="0712 345 678">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required minlength="6" placeholder="Min 6 characters">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" name="confirm_password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mb-3">Create Account</button>
+        </form>
+        <div class="text-center">
+            <span class="text-muted small">Already have an account?</span>
+            <a href="{{ url_for('auth.login') }}" class="small">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

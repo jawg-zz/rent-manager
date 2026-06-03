@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if tenant else "Add" }} Tenant{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.list_tenants') }}">Tenants</a></li>
+        <li class="breadcrumb-item active">{{ "Edit" if tenant else "Add" }} Tenant</li>
+    </ol>
+</nav>
+
+<div class="card border-0 shadow-sm" style="max-width: 600px">
+    <div class="card-body">
+        <h5 class="mb-4">{{ "Edit" if tenant else "New" }} Tenant</h5>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Full Name *</label>
+                <input type="text" name="full_name" class="form-control" value="{{ tenant.full_name if tenant else '' }}" required>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Phone *</label>
+                    <input type="tel" name="phone" class="form-control" value="{{ tenant.phone if tenant else '' }}" required placeholder="0712 345 678">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ tenant.email if tenant else '' }}">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">ID Type</label>
+                    <select name="id_type" class="form-select">
+                        <option value="national_id" {{ 'selected' if tenant and tenant.id_type == 'national_id' }}>National ID</option>
+                        <option value="passport" {{ 'selected' if tenant and tenant.id_type == 'passport' }}>Passport</option>
+                        <option value="alien_id" {{ 'selected' if tenant and tenant.id_type == 'alien_id' }}>Alien ID</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">ID Number</label>
+                    <input type="text" name="id_number" class="form-control" value="{{ tenant.id_number if tenant else '' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Employer</label>
+                <input type="text" name="employer" class="form-control" value="{{ tenant.employer if tenant else '' }}">
+            </div>
+            <hr>
+            <h6 class="mb-3">Emergency Contact</h6>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Contact Name</label>
+                    <input type="text" name="emergency_contact" class="form-control" value="{{ tenant.emergency_contact if tenant else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Contact Phone</label>
+                    <input type="tel" name="emergency_phone" class="form-control" value="{{ tenant.emergency_phone if tenant else '' }}">
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">{{ "Save Changes" if tenant else "Add Tenant" }}</button>
+                <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

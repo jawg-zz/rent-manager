@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}{% if report_type == 'arrears' %}Arrears{% elif report_type == 'payment_history' %}Payment History{% else %}Rent Roll{% endif %}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+        {% if report_type == 'arrears' %}Arrears Report
+        {% elif report_type == 'payment_history' %}Payment History
+        {% else %}Rent Roll{% endif %}
+    </h4>
+    <div class="d-flex gap-2">
+        {% if report_type != 'payment_history' %}
+        <a href="{{ url_for('reports.export_rent_roll') }}" class="btn btn-sm btn-outline-success"><i class="bi bi-download"></i> Export CSV</a>
+        {% endif %}
+        {% if report_type == 'payment_history' %}
+        <a href="{{ url_for('reports.export_payments') }}" class="btn btn-sm btn-outline-success"><i class="bi bi-download"></i> Export CSV</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mb-3">
+    <div class="btn-group btn-group-sm">
+        <a href="{{ url_for('reports.rent_roll') }}" class="btn {{ 'btn-primary' if report_type == 'rent_roll' else 'btn-outline-primary' }}">Rent Roll</a>
+        <a href="{{ url_for('reports.arrears') }}" class="btn {{ 'btn-danger' if report_type == 'arrears' else 'btn-outline-danger' }}">Arrears</a>
+        <a href="{{ url_for('reports.payment_history') }}" class="btn {{ 'btn-info' if report_type == 'payment_history' else 'btn-outline-info' }}">Payment History</a>
+    </div>
+</div>
+
+{% if report_type == 'rent_roll' %}
+    {% if properties %}
+    {% for prop in properties %}
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white">
+            <h6 class="mb-0">{{ prop.name }} <small class="text-muted">— {{ prop.city }}</small></h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr><th>Unit</th><th>Tenant</th><th>Phone</th><th>Monthly Rent</th><th>Status</th><th>Months Owed</th><th>Total Owed</th></tr>
+                </thead>
+                <tbody>
+                    {% for unit in prop.units %}
+                    <tr>
+                        <td class="fw-bold">{{ unit.unit_number }}</td>
+                        {% if unit.active_lease %}
+                            <td>{{ unit.active_lease.tenant.full_name }}</td>
+                            <td>{{ unit.active_lease.tenant.phone }}</td>
+                            <td>KES {{ "{:,.0f}".format(unit.active_lease.monthly_rent) }}</td>
+                            <td>
+                                {% if unit.active_lease.is_overdue %}
+                                    <span class="badge bg-danger">Overdue</span>
+                                {% else %}
+                                    <span class="badge bg-success">Current</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ unit.active_lease.months_owed }}</td>
+                            <td class="{% if unit.active_lease.total_owed > 0 %}text-danger fw-bold{% endif %}">
+                                KES {{ "{:,.0f}".format(unit.active_lease.total_owed) }}
+                            </td>
+                        {% else %}
+                            <td colspan="4" class="text-muted">Vacant</td>
+                            <td><span class="badge bg-warning text-dark">Vacant</span></td>
+                            <td>—</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">No properties to display</p>
+    {% endif %}
+
+{% elif report_type == 'arrears' %}
+    {% if overdue %}
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr><th>Tenant</th><th>Property</th><th>Unit</th><th>Monthly Rent</th><th>Months Owed</th><th>Total Owed</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for l in overdue %}
+                    <tr>
+                        <td class="fw-bold">{{ l.tenant.full_name }}</td>
+                        <td>{{ l.unit.property.name }}</td>
+                        <td>{{ l.unit.unit_number }}</td>
+                        <td>KES {{ "{:,.0f}".format(l.monthly_rent) }}</td>
+                        <td>{{ l.months_owed }}</td>
+                        <td class="text-danger fw-bold">KES {{ "{:,.0f}".format(l.total_owed) }}</td>
+                        <td><a href="{{ url_for('payments.add', lease_id=l.id) }}" class="btn btn-sm btn-success">Record Payment</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-check-circle text-success fs-1"></i>
+        <h5 class="mt-3">No arrears</h5>
+        <p class="text-muted">All tenants are up to date</p>
+    </div>
+    {% endif %}
+
+{% elif report_type == 'payment_history' %}
+    <div class="mb-3">
+        <form class="row g-2 align-items-end">
+            <div class="col-auto">
+                <select name="property_id" class="form-select form-select-sm">
+                    <option value="">All Properties</option>
+                    {% for p in properties %}
+                    <option value="{{ p.id }}" {{ 'selected' if selected_property == p.id }}>{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+            </div>
+        </form>
+    </div>
+    {% if payments %}
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr><th>Date</th><th>Tenant</th><th>Property</th><th>Amount</th><th>Method</th><th>Receipt</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td>{{ p.payment_date.strftime('%d %b %Y') }}</td>
+                        <td class="fw-bold">{{ p.lease.tenant.full_name }}</td>
+                        <td><small>{{ p.lease.unit.property.name }} — {{ p.lease.unit.unit_number }}</small></td>
+                        <td class="text-success fw-bold">KES {{ "{:,.0f}".format(p.amount) }}</td>
+                        <td><span class="badge bg-secondary">{{ p.payment_method|upper }}</span></td>
+                        <td><small class="text-muted">{{ p.mpesa_receipt or '—' }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No payments found</p>
+    {% endif %}
+{% endif %}
+{% endblock %}
