@@ -10,8 +10,6 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - DEMO_MODE=${DEMO_MODE:-false}
       - TZ=Africa/Nairobi
-    env_file:
-      - .env
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 30s
