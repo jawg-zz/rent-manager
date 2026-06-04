@@ -6,10 +6,9 @@ services:
     expose:
       - "5000"
     environment:
-      - DATABASE_URL=postgresql://rent_user:***@db:5432/rent_manager
-      - SECRET_KEY=***
-      - DEMO_MODE=true
       - TZ=Africa/Nairobi
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 30s
@@ -35,10 +34,8 @@ services:
     image: postgres:16-alpine
     expose:
       - "5432"
-    environment:
-      - POSTGRES_DB=rent_manager
-      - POSTGRES_USER=rent_user
-      - POSTGRES_PASSWORD=***
+    env_file:
+      - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
