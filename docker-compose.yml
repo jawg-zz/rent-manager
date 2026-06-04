@@ -10,6 +10,8 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - DEMO_MODE=${DEMO_MODE:-false}
       - TZ=Africa/Nairobi
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 30s
@@ -39,6 +41,8 @@ services:
       - POSTGRES_DB=rent_manager
       - POSTGRES_USER=rent_user
       - POSTGRES_PASSWORD=${DB_PASSWORD:-changeme}
+    env_file:
+      - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
